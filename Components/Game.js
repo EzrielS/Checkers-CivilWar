@@ -37,7 +37,7 @@ function deleteElementFromArrayInState(L, el){
 }
 
 
-var imagePionNoir = require('../img/pionNoir.png');
+var imagePionNoir  = require('../img/pionNoir.png');
 var imagePionBlanc = require('../img/pionBlanc.png');
 
 
@@ -61,7 +61,6 @@ class Game extends React.Component {
 		}
 	}
 	renderPion(coor){ 
-//		if (this.state.pionsBlancs.some(x => arraysEqual(x, coor)) ) {
 		if ( containsArray(this.state.pionsBlancs, coor) ) {
 			return(
 
@@ -76,7 +75,7 @@ class Game extends React.Component {
 		}
 	}
 	renderDamier(){	
-		return(Array.range(8).map(
+		return( Array.range(8).map(
 						(x)=>{return(
 							<View style={{flexDirection: 'row'}} key={x}>
 								{
@@ -126,17 +125,11 @@ class Game extends React.Component {
 			}
 		}
 		else{
-
 			var test = this.state[this.state.ttest[0]];
 			test.splice(test.findIndex(i => arraysEqual(this.state.selected, i)), 1);
 			test = test.concat([coord]);
 			this.setState( {[this.state.ttest[0]]: test, selected: null} );
-			this.setState( {ttest: this.state.ttest.reverse()});
-
-/*			var test = this.state.pionsBlancs;
-			test.splice(test.findIndex(i => arraysEqual(this.state.selected, i)), 1);
-			test = test.concat([coord]);
-			this.setState( {pionsBlancs: test, selected: null} );**/
+			this.setState( {ttest: this.state.ttest.reverse()} ) ;
 		}
 	}
 	render() {
@@ -167,10 +160,8 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: '#D2691E',
-		//height: 500,
 	},
 	container: {
-	//	alignItems: 'center',
 		justifyContent: 'center',
 
 	}
