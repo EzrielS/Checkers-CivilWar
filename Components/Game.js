@@ -32,10 +32,6 @@ function deleteElementFromArray(L, el){
 	return false;
 }
 
-function deleteElementFromArrayInState(L, el){
-
-}
-
 
 var imagePionNoir  = require('../img/pionNoir.png');
 var imagePionBlanc = require('../img/pionBlanc.png');
@@ -48,7 +44,7 @@ class Game extends React.Component {
 						pionsNoirs: [],
 						selected: null,
 						currentPlayer: 'blanc',
-						ttest: ['pionsBlancs', 'pionsNoirs'],
+						pions: ['pionsBlancs', 'pionsNoirs'],
 					};
 		for(i in Array.range(8*2)){
 			i = parseInt(i);			
@@ -59,6 +55,7 @@ class Game extends React.Component {
 			this.state.pionsBlancs.push([14, i]);
 			this.state.pionsBlancs.push([15, i+1]);		
 		}
+this.selected = null;
 	}
 	renderPion(coor){ 
 		if ( containsArray(this.state.pionsBlancs, coor) ) {
@@ -67,7 +64,6 @@ class Game extends React.Component {
 				<Image source={imagePionBlanc} />
 			);
 		}
-//		if (this.state.pionsNoirs.some(x => arraysEqual(x, coor)) ) {
 		if ( containsArray(this.state.pionsNoirs, coor) ) {
 			return(
 				<Image source={imagePionNoir} />
@@ -113,23 +109,23 @@ class Game extends React.Component {
 						));
 	}
 	getCurrentPlayerPions(){
-		if(this.state.ttest[0] == 'pionsBlancs'){
+		if(this.state.pions[0] == 'pionsBlancs'){
 			return this.state.pionsBlancs;
 		}
 		return this.state.pionsNoirs;
 	}
 	pressCase(coord){
-		if(!this.state.selected){
+		if(!this.selected){
 			if (containsArray(this.getCurrentPlayerPions(), coord)){
-				this.setState({selected: coord});
+				this.selected = coord;
 			}
 		}
 		else{
-			var test = this.state[this.state.ttest[0]];
-			test.splice(test.findIndex(i => arraysEqual(this.state.selected, i)), 1);
+			var test = this.state[this.state.pions[0]];
+			test.splice(test.findIndex(i => arraysEqual(this.selected, i)), 1);		
 			test = test.concat([coord]);
-			this.setState( {[this.state.ttest[0]]: test, selected: null} );
-			this.setState( {ttest: this.state.ttest.reverse()} ) ;
+			this.setState( {[this.state.pions[0]]: test, pions: this.state.pions.reverse()});
+			this.selected = null;
 		}
 	}
 	render() {
