@@ -1,8 +1,8 @@
 import React from 'react';
-import {View, TouchableOpacity, Text,  StyleSheet, Image} from 'react-native';
+import {View, TouchableOpacity, Text,  StyleSheet, Image, Dimensions} from 'react-native';
 import {Button, Icon} from 'native-base';
 import {Header} from 'react-native-elements';
-
+import Case from './Case.js';
 
 Array.range = n => Array.from({length: n}, (value, key) => key)
 
@@ -46,21 +46,25 @@ class Game extends React.Component {
 						currentPlayer: 'blanc',
 						pions: ['pionsBlancs', 'pionsNoirs'],
 					};
-		for(i in Array.range(8*2)){
-			i = parseInt(i);			
-			this.state.pionsNoirs.push([0, i]);
-			this.state.pionsNoirs.push([1, i+1]);
-			this.state.pionsNoirs.push([2, i]);
-			this.state.pionsBlancs.push([13, i+1]);
-			this.state.pionsBlancs.push([14, i]);
-			this.state.pionsBlancs.push([15, i+1]);		
+this.cases = {} ;
+this.pionsBlancs = [];
+this.pionsNoirs = [];
+this.pions = ['pionsBlancs', 'pionsNoirs'];
+		for(let i of Array.range(5)){
+			i = 2*i;
+			this.pionsNoirs.push([0, i]);
+			this.pionsNoirs.push([1, i+1]);
+			this.pionsNoirs.push([2, i]);
+			this.pionsBlancs.push([7, i+1]);
+			this.pionsBlancs.push([8, i]);
+			this.pionsBlancs.push([9, i+1]);
 		}
-this.selected = null;
+		this.selected = null;
+console.log(this.pionsBlancs);
 	}
 	renderPion(coor){ 
 		if ( containsArray(this.state.pionsBlancs, coor) ) {
 			return(
-
 				<Image source={imagePionBlanc} />
 			);
 		}
@@ -70,64 +74,75 @@ this.selected = null;
 			);
 		}
 	}
-	renderDamier(){	
-		return( Array.range(8).map(
-						(x)=>{return(
-							<View style={{flexDirection: 'row'}} key={x}>
-								{
-								Array.range(8).map((y)=>{
-									return(
-										<View 
-											key={[x, y]} 
-											style={{height: 100, width: 100, backgroundColor: '#778899'}}> 
-											
-											<View style={{flexDirection: 'row'}}>
-												<TouchableOpacity 
-													style= {{height: 50, width: 50, backgroundColor: '#696969'}}
-													onPress = {() => this.pressCase([x*2, y*2])} >
-													{this.renderPion([x*2, y*2])}
-												</TouchableOpacity>
-												<View style= {{height: 50, width: 50, backgroundColor: 'white'}} />
-											</View>
-				
-											<View style={{flexDirection: 'row'}}>
-												<View style= {{height: 50, width: 50, backgroundColor: 'white'}} />					
-												<TouchableOpacity 
-													style= {{height: 50, width: 50, backgroundColor: '#696969'}}
-													onPress = {() => this.pressCase([x*2+1, y*2+1])} >
-													{this.renderPion([x*2+1, y*2+1])}
-												</TouchableOpacity>
-											</View>
+	handle_Case_Constructor(tCase){
+		this.cases[tCase.props.coor] = tCase;
+	}
+	return_Coords(coul){
+		if(coul == 'blanc'){
+			return this.pionsBlancs;
+		}else{
+			return this.pionsNoirs;
+		}
+	}
+	renderDamier(){
+		return( 
 
-										</View> ); }
-										)
-								}
-							</View>
-									);
-				
-							}
-						));
+			<View style={styles.damier}>{
+				Array.range(5).map((x)=>{return(
+					<View style={{flexDirection: 'row', height: Dimensions.get('window').width/5}} key={x}>
+						{
+							Array.range(5).map((y)=>{
+								return(
+									<View 
+										key={[x, y]} 
+										style={{width: Dimensions.get('window').width/5, backgroundColor: '#778899'}}>
+										<View style={{flexDirection: 'row', height: Dimensions.get('window').width/10}}>
+											<Case
+												callback_Constructor={(a)=>this.handle_Case_Constructor(a)}
+												coor={[x*2, y*2]}
+												getter_Coords={(a)=>this.return_Coords(a)}
+												press_Caller={a => this.pressCase(a)} />
+											<View style= {{flex: 1, backgroundColor: 'white'}} />
+										</View>
+						
+										<View style={{flexDirection: 'row', height: Dimensions.get('window').width/10}}>
+											<View style= {{flex: 1 , backgroundColor: 'white'}} />
+												<Case
+													callback_Constructor={(a)=>this.handle_Case_Constructor(a)}
+													coor={[x*2+1, y*2+1]}
+													getter_Coords={(a)=>this.return_Coords(a)} 
+													press_Caller={a => this.pressCase(a)} />														
+										</View>
+
+									</View> ); 
+							})
+						}
+					</View>
+				);})}
+			</View>
+			);
 	}
 	getCurrentPlayerPions(){
-		if(this.state.pions[0] == 'pionsBlancs'){
-			return this.state.pionsBlancs;
-		}
-		return this.state.pionsNoirs;
+		return this[this.pions[0]];
 	}
 	pressCase(coord){
 		if(!this.selected){
 			if (containsArray(this.getCurrentPlayerPions(), coord)){
 				this.selected = coord;
+				console.log('selected !!')
 			}
 		}
 		else{
-			var test = this.state[this.state.pions[0]];
-			test.splice(test.findIndex(i => arraysEqual(this.selected, i)), 1);		
-			test = test.concat([coord]);
-			this.setState( {[this.state.pions[0]]: test, pions: this.state.pions.reverse()});
+			var pionsColor = this[this.pions[0]];
+			pionsColor.splice(pionsColor.findIndex(i => arraysEqual(this.selected, i)), 1);		
+			pionsColor = pionsColor.concat([coord]);
+			this[this.pions[0]] = pionsColor;
+			this.pions = this.pions.reverse();
+			this.cases[this.selected].forceUpdate(); 
 			this.selected = null;
 		}
 	}
+
 	render() {
 		return(
 			<View>
@@ -144,7 +159,7 @@ this.selected = null;
 										</Button>}/>
 
 				{ this.renderDamier() }
-
+				
 			</View>
 			);
 	}
@@ -160,6 +175,10 @@ const styles = StyleSheet.create({
 	container: {
 		justifyContent: 'center',
 
+	},
+	damier: {
+		width: Dimensions.get('window').width, 
+		height: Dimensions.get('window').width,
 	}
 });
 
