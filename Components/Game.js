@@ -40,16 +40,11 @@ var imagePionBlanc = require('../img/pionBlanc.png');
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {	pionsBlancs: [], 
-						pionsNoirs: [],
-						selected: null,
-						currentPlayer: 'blanc',
-						pions: ['pionsBlancs', 'pionsNoirs'],
-					};
-this.cases = {} ;
-this.pionsBlancs = [];
-this.pionsNoirs = [];
-this.pions = ['pionsBlancs', 'pionsNoirs'];
+		this.selected = null;
+		this.cases = {} ;
+		this.pionsBlancs = [];
+		this.pionsNoirs = [];
+		this.pions = ['pionsBlancs', 'pionsNoirs'];
 		for(let i of Array.range(5)){
 			i = 2*i;
 			this.pionsNoirs.push([0, i]);
@@ -59,20 +54,7 @@ this.pions = ['pionsBlancs', 'pionsNoirs'];
 			this.pionsBlancs.push([8, i]);
 			this.pionsBlancs.push([9, i+1]);
 		}
-		this.selected = null;
-console.log(this.pionsBlancs);
-	}
-	renderPion(coor){ 
-		if ( containsArray(this.state.pionsBlancs, coor) ) {
-			return(
-				<Image source={imagePionBlanc} />
-			);
-		}
-		if ( containsArray(this.state.pionsNoirs, coor) ) {
-			return(
-				<Image source={imagePionNoir} />
-			);
-		}
+
 	}
 	handle_Case_Constructor(tCase){
 		this.cases[tCase.props.coor] = tCase;
@@ -98,20 +80,16 @@ console.log(this.pionsBlancs);
 										style={{width: Dimensions.get('window').width/5, backgroundColor: '#778899'}}>
 										<View style={{flexDirection: 'row', height: Dimensions.get('window').width/10}}>
 											<Case
-												callback_Constructor={(a)=>this.handle_Case_Constructor(a)}
 												coor={[x*2, y*2]}
-												getter_Coords={(a)=>this.return_Coords(a)}
-												press_Caller={a => this.pressCase(a)} />
+												parent={this} />
 											<View style= {{flex: 1, backgroundColor: 'white'}} />
 										</View>
 						
 										<View style={{flexDirection: 'row', height: Dimensions.get('window').width/10}}>
 											<View style= {{flex: 1 , backgroundColor: 'white'}} />
 												<Case
-													callback_Constructor={(a)=>this.handle_Case_Constructor(a)}
 													coor={[x*2+1, y*2+1]}
-													getter_Coords={(a)=>this.return_Coords(a)} 
-													press_Caller={a => this.pressCase(a)} />														
+													parent={this} />														
 										</View>
 
 									</View> ); 
@@ -177,7 +155,7 @@ const styles = StyleSheet.create({
 
 	},
 	damier: {
-		width: Dimensions.get('window').width, 
+		width:  Dimensions.get('window').width,
 		height: Dimensions.get('window').width,
 	}
 });

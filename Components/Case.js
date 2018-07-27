@@ -24,16 +24,15 @@ var imagePionBlanc = require('../img/pionBlanc.png');
 class Case extends React.Component {
 	constructor(props) {
 		super(props);
-		props.callback_Constructor(this);
-		
+		props.parent.handle_Case_Constructor(this);
 	}
 	renderPion(coor){ 
-		if ( containsArray(this.props.getter_Coords('blanc'), coor) ) {
+		if (  containsArray(this.props.parent.return_Coords('blanc'), coor) ) {
 			return(
 				<Image source={imagePionBlanc} />
 			);
 		}
-		if ( containsArray(this.props.getter_Coords('noir'), coor) ) {
+		if ( containsArray(this.props.parent.return_Coords('noir'), coor)  ) {
 			return(
 				<Image source={imagePionNoir} />
 			);
@@ -43,17 +42,16 @@ class Case extends React.Component {
 		return(
 
 			<TouchableOpacity
-				style= {{flex:1 , backgroundColor: '#696969'}}
+				style= {{flex:1 , backgroundColor: '#696969',alignItems: 'center', justifyContent: 'center',}}
 				onPress = {() => this.pressCase()} >
 
 					{this.renderPion(this.props.coor)}
-					<Text> {this.props.coor} </Text>
 
 			</TouchableOpacity>
 		);
 	}
 	pressCase(){
-		this.props.press_Caller(this.props.coor);
+		this.props.parent.pressCase(this.props.coor);
 		this.forceUpdate();
 	}
 }
