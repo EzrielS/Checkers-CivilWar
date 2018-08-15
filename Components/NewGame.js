@@ -29,7 +29,7 @@ class NewGame extends React.Component {
 							<Picker.Item label="Difficile" value='3' />
 						</Picker>
 					</View>
-				</View>
+				</View> 
 
 			)
 		}

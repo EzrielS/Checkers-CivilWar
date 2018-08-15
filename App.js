@@ -7,7 +7,9 @@ import Game from './Components/Game.js'
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {page: 'Landing'};
+//		this.state = {page: 'Landing'};
+		this.state = {page: 'Game'};
+this.doNewGame(5, 0);
 	}
 	componentWillMount() {
 		this.loadFonts();

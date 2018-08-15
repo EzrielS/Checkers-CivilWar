@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Font, Text, Image, ImageBackground, Dimensions} from 'react-native';
+import { StyleSheet, View, Font, Text, ImageBackground, Dimensions} from 'react-native';
 import { Button } from 'native-base';
 
 
@@ -10,17 +10,16 @@ class Landing extends React.Component {
 				style={styles.imgBack}
 				source={require('../img/fond.png')}>
 
-
 			
 				<View style={styles.form}>
 				
-				 	<Button style = {styles.button} onPress = {()=>this.props.setter('NewGame')} >
+				 	<Button style={styles.button} onPress = {()=>this.props.setter('NewGame')} >
 						<Text style={styles.buttonText}>
 							New Game
 						</Text>
 					</Button>
 
-					<Button style = {styles.button}>
+					<Button style={styles.button}>
 						<Text style={styles.buttonText}>
 							Scores
 						</Text>

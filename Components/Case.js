@@ -13,12 +13,15 @@ function arraysEqual(a, b) {
 	return true;
 }
 
+function str(x) {return JSON.stringify(x)}
+
 containsArray = (a, b) => a.some(x => arraysEqual(x, b))
 
 
-
-var imagePionNoir  = require('../img/pionNoir.png');
-var imagePionBlanc = require('../img/pionBlanc.png');
+var imagePionNoir    = require('../img/pionNoir.png');
+var imagePionBlanc   = require('../img/pionBlanc.png');
+var imageDameNoire   = require('../img/dameNoire.png');
+var imageDameBlanche = require('../img/dameBlanche.png');
 
 
 class Case extends React.Component {
@@ -27,22 +30,44 @@ class Case extends React.Component {
 		props.parent.handle_Case_Constructor(this);
 	}
 	renderPion(coor){ 
-		if (  containsArray(this.props.parent.return_Coords('blanc'), coor) ) {
+		if (  containsArray(this.props.parent.pionsBlancs, coor) ) {
 			return(
 				<Image source={imagePionBlanc} />
 			);
 		}
-		if ( containsArray(this.props.parent.return_Coords('noir'), coor)  ) {
+		if ( containsArray(this.props.parent.pionsNoirs, coor)  ) {
 			return(
 				<Image source={imagePionNoir} />
 			);
 		}
+		if ( containsArray(this.props.parent.damesBlanches)){
+			return(
+				<Image source={imageDameBlanche} />
+			);
+		}
+		if ( containsArray(this.props.parent.damesNoires)){
+			return(
+				<Image source={imageDameNoire} />
+			);			
+		}
+	}
+	getColor(){
+		if (arraysEqual(this.props.coor, this.props.parent.selected)){
+			return('red');
+		}
+		if (containsArray(this.props.parent.possiblesMvmt, this.props.coor)){
+			return('blue');
+		}
+		if (containsArray(this.props.parent.pionsBougeables, this.props.coor)){
+			return('grey');
+		}
+		return('#696969');
 	}
 	render() {
 		return(
 
 			<TouchableOpacity
-				style= {{flex:1 , backgroundColor: '#696969',alignItems: 'center', justifyContent: 'center',}}
+				style= {{flex:1 , backgroundColor: this.getColor(), alignItems: 'center', justifyContent: 'center',}}
 				onPress = {() => this.pressCase()} >
 
 					{this.renderPion(this.props.coor)}
