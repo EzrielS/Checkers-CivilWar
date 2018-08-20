@@ -72,8 +72,6 @@ function findOpPiece(coup, opPos){
 
 
 const BOARD_SIZE = 10 ;
-//const WHITE = 1 ;
-//const BLACK = 2 ;
 const WHITE = 'blanc' ;
 const BLACK = 'noir' ;
 
