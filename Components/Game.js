@@ -3,7 +3,7 @@ import {View, TouchableOpacity, Text,  StyleSheet, Image, Dimensions} from 'reac
 import {Button, Icon} from 'native-base';
 import {Header} from 'react-native-elements';
 import Case from './Case.js';
-import * as dm from '../dataManipulation/pionBougeables&casesPosables.js';
+import * as dm from '../dataManipulation/checkerManipulations.js';
 
 
 Array.range = n => Array.from({length: n}, (value, key) => key)
