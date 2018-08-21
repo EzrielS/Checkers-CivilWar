@@ -190,6 +190,7 @@ function choisitCoup(s, depth = NORMAL){
     return null ;
 }
 
+/* Pseudo-code de l'algorithme :
 function negamax(node, depth, α, β, color) is
     if depth = 0 or node is a terminal node then
         return color × the heuristic value of node
@@ -207,4 +208,5 @@ function negamax(node, depth, α, β, color) is
 
         1
       3   4
-     4 5 6 3
+     4 5 6 3 
+*/
