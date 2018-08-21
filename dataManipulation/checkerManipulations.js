@@ -31,7 +31,7 @@ function isDame(pion, pW, pB){
 // utiliser posW et posB : ils sont modifiés, je les return juste au cas où
 export function doUpdate(posW, posB, player, coup)
 {
-	let ret = [];	
+	let ret = []; let pieceMange ;
 	var myPos = (player == WHITE ? posW : posB) ;
 	var opPos = (player == WHITE ? posB : posW) ;
 	if(deleteElementFromArray(myPos[0], coup[0])) // Si c'est un pion
@@ -40,16 +40,29 @@ export function doUpdate(posW, posB, player, coup)
 		myPos[1].push(coup[1]) ;
 	else str("Erreur lors de la suppression de la pièce dans myPos") ;
 
-	if(isAttack(coup)){
-		let pieceMange = findOpPiece(coup, opPos);
+	if(isAttack(coup) && (pieceMange = findOpPiece(coup, opPos))){
 		if(!deletePiece(opPos, pieceMange))
-			str("Erreur lors de la suppression de la pièce adverse") ;
+			console.log("doUpdate : Erreur lors de la suppression de la pièce adverse : ", pieceMange) ;
 		return pieceMange;
 	}
 	return null;
 }
 
+// Fonction transformant les pions arrivés au bout en dame 
+// (renvoie true s'il y a eu tranformation)
+function pionsToDames(posW, posB){
+	let t = false ;
+	for(let pos of [posW, posB]) {
+		let lastRange = (pos == posW ? 0 : 9) ; // La dernière rangée est à 0 ou 9 selon 
+		for(let pion of pos[0])
+			if(pion[0] == lastRange && (t = deletePiece(pos, pion)))
+				pos[1].push(pion);
+	}
+	return t ;
+}
+
 // Si le déplacement est de seulement +1 ou -1 x, on a affaire à un coup simple
+// A moins que ce ne soit une dame ?
 function isAttack(coup){
 	return Math.abs(coup[0][0]-coup[1][0]) > 1
 }
@@ -391,7 +404,7 @@ function listeCasesDames(posDame, posW, posB, player)
 					while(isInBoard((afterJump = [afterJump[0]+plusMoinsX,afterJump[1]+plusMoinsY]))
 						 && !isTaken(afterJump,myPos) && !isTaken(afterJump,opPos) ) {
 					sauteEtMange.push([afterJump, tmpPos]) ;
-					console.log(afterJump) ;
+					//console.log(afterJump) ;
 					}
 					break ;
 				}
