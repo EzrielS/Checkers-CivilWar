@@ -175,6 +175,9 @@ function choisitCoup(s, depth = NORMAL){
   if(depth < 1) // Si on veut choisir un coup au hasard
     res = coups ;
   else {
+    // Si on a plus de trois branches de départ, il faut aller moins profond
+    if(childNodes.len > 3 && depth > 4) 
+      depth-- ;
     for(let child of childNodes){
       // On évalue la valeur de la prochaine situation pour l'adversaire
       if(val < (tmpVal = -negamax(child, depth-1)))
