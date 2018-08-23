@@ -65,32 +65,15 @@ class Game extends React.Component {
 		console.log('Executing doNextMove');
 		if(this.props.type == 'IA'){
 			this.locked = true;
-	
 console.time("ia");
-			let coups = dm.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.pions[0], 2);
+			let coup = dm.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.pions[0], 2);
 console.timeEnd("ia");
-
-
-			console.log('le coup choisi : ',str(coups));
-			this.selected = coups.shift();
-			this.cases[this.selected].forceUpdate();
-			while(coups[0]){
-				await sleep(400);
-				console.log(str([this.selected, coups[0]]));
-				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coups[0]]);
-				if(aMangé)
-					this.cases[aMangé].forceUpdate();
-				this.flushAndUpdateSelected();
-				this.selected = coups.shift();
-				this.cases[this.selected].forceUpdate();
-			}
-			this.flushAndUpdateSelected();
-
+			this.doCoup(coup);
 		}
 		else if(this.props.type == 'Solo'){}
 		this.nextMove();
 	}
-	async pressCase(coord){
+	async pressCase(coord){ 
 		if (this.locked){	// pas a un joueur à jouer
 			return null;
 		}
@@ -108,11 +91,8 @@ console.timeEnd("ia");
 				this.flushAndUpdate(this.possiblesMvmt);
 
 				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coord]);
-
 				this.flushAndUpdateSelected();
-
 				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, false);
-			//	this.updateList(this.possiblesMvmt);
 
 				if(aMangé){	// on viens de faire une prise
 					this.cases[aMangé].forceUpdate();
@@ -147,6 +127,20 @@ console.timeEnd("ia");
 	}
 	doMvmt(M){
 		
+	}
+	doCoup(L){
+		this.selected = coup.shift();
+		this.cases[this.selected].forceUpdate();
+		while(coup[0]){
+			await sleep(400);
+			let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coup[0]]);
+			if(aMangé)
+				this.cases[aMangé].forceUpdate();
+			this.flushAndUpdateSelected();
+			this.selected = coup.shift();
+			this.cases[this.selected].forceUpdate();
+		}
+		this.flushAndUpdateSelected();
 	}
 	flushAndUpdate(L){
 		while(L[0]){
