@@ -27,7 +27,7 @@ var imageDameBlanche = require('../img/dameBlanche.png');
 class Case extends React.Component {
 	constructor(props) {
 		super(props);
-		props.parent.handle_Case_Constructor(this);
+		this.props.parent.cases[this.props.coor] = this;
 	}
 	renderPion(coor){ 
 		if (  containsArray(this.props.parent.pionsBlancs, coor) ) {
@@ -40,12 +40,12 @@ class Case extends React.Component {
 				<Image source={imagePionNoir} />
 			);
 		}
-		if ( containsArray(this.props.parent.damesBlanches)){
+		if ( containsArray(this.props.parent.damesBlanches, coor)){
 			return(
 				<Image source={imageDameBlanche} />
 			);
 		}
-		if ( containsArray(this.props.parent.damesNoires)){
+		if ( containsArray(this.props.parent.damesNoires, coor)){
 			return(
 				<Image source={imageDameNoire} />
 			);			
@@ -64,6 +64,7 @@ class Case extends React.Component {
 		return('#696969');
 	}
 	render() {
+//console.log('ReRendering : ', this.props.coor);
 		return(
 
 			<TouchableOpacity

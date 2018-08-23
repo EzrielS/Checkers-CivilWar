@@ -8,8 +8,8 @@ class App extends React.Component {
 	constructor(props) {
 		super(props);
 //		this.state = {page: 'Landing'};
-		this.state = {page: 'Game'};
-this.doNewGame(5, 0);
+		this.state = {page: 'Game', type: 'IA', diff: null};
+//this.doNewGame('IA', 0);
 	}
 	componentWillMount() {
 		this.loadFonts();

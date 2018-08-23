@@ -4,38 +4,16 @@ import {Button, Icon} from 'native-base';
 import {Header} from 'react-native-elements';
 import Case from './Case.js';
 import * as dm from '../dataManipulation/checkerManipulations.js';
+import 'react-native-console-time-polyfill';
+
+// import * as ia from '../dataManipulation/ia.js';
 
 
-Array.range = n => Array.from({length: n}, (value, key) => key)
-
-containsArray = (a, b) => a.some(x => arraysEqual(x, b))
-
-function str(x) {return JSON.stringify(x)}
-
-function arraysEqual(a, b) {
-	if (a === b) return true;
-	if (a == null || b == null) return false;
-	if (a.length != b.length) return false;
-	for (var i = 0; i < a.length; ++i) {
-		if (a[i] !== b[i]) return false;
-	}
-	return true;
+function sleep(ms){
+    return new Promise(resolve=>{
+        setTimeout(resolve,ms)
+    })
 }
-
-
-function deleteElementFromArray(L, el){
-	nb = 0;
-	for(i in L){
-		i = L[i];
-		if(arraysEqual(el, i)){
-			L.splice(nb, 1);
-			return true;
-		}
-		nb ++;
-	}
-	return false;
-}
-
 
 var imageH = require('../img/ttt.jpg');
 var windowWidth = Dimensions.get('window').width;
@@ -53,6 +31,7 @@ class Game extends React.Component {
 		this.pions = ['noir', 'blanc'];
 		this.possiblesCoups = [];	// coup = ensemble de mvmnt qui sont 'en une fois'
 		this.possiblesMvmt = [];
+		this.inRafle = false;
 		this.locked = false;
 
 		for(let i of Array.range(5)){
@@ -68,70 +47,120 @@ class Game extends React.Component {
 			this.pionsBlancs.push([9, i]);
 		}
 
+		this.infoGame = {};
+
+
 		this.nextMove();
 	}
 	nextMove(){
 		this.pions = this.pions.reverse();
-		this.pionsBougeables = dm.pionsBougeables([this.getPlayerPions('blanc'), this.getPlayerDames('blanc')], [this.getPlayerPions('noir'), this.getPlayerDames('noir')], this.pions[0])
+		this.pionsBougeables = dm.pionsBougeables(this.piecesBlanches(), this.piecesNoires(), this.pions[0])
 		this.selected = null;
 		this.possiblesMvmt = [];
+		this.inRafle = false;
+		this.locked = false;
+	}
+	async doNextMove(){
+		this.nextMove();
+		console.log('Executing doNextMove');
+		if(this.props.type == 'IA'){
+			this.locked = true;
+	
+console.time("ia");
+			let coups = dm.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.pions[0], 2);
+console.timeEnd("ia");
+
+
+			console.log('le coup choisi : ',str(coups));
+			this.selected = coups.shift();
+			this.cases[this.selected].forceUpdate();
+			while(coups[0]){
+				await sleep(400);
+				console.log(str([this.selected, coups[0]]));
+				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coups[0]]);
+				if(aMangé)
+					this.cases[aMangé].forceUpdate();
+				this.flushAndUpdateSelected();
+				this.selected = coups.shift();
+				this.cases[this.selected].forceUpdate();
+			}
+			this.flushAndUpdateSelected();
+
 		}
-	pressCase(coord){
+		else if(this.props.type == 'Solo'){}
+		this.nextMove();
+	}
+	async pressCase(coord){
+		if (this.locked){	// pas a un joueur à jouer
+			return null;
+		}
 		if(!this.selected){
 			if (containsArray(this.pionsBougeables, coord) ) {	// ce pion est bougeable
 				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, true);
 				this.selected = coord;
-				for(i of this.possiblesMvmt){
-					this.cases[i].forceUpdate();
-				}
+				this.updateList(this.possiblesMvmt);
 				this.cases[coord].forceUpdate();
 			}
 		}
 		else{
 			if( containsArray(this.possiblesMvmt, coord) ){ // on click sur une case ou on peux aller
-				let ancienPossiblesMvmt = [];
-				for(i of this.possiblesMvmt){
-					ancienPossiblesMvmt.push(this.cases[i]);
-				}
-				this.possiblesMvmt = []
-				for(i of ancienPossiblesMvmt){
-					i.forceUpdate();
-				}
+				
+				this.flushAndUpdate(this.possiblesMvmt);
 
 				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coord]);
-				let ancienSelected = this.cases[this.selected];
-				this.selected = coord;
-				ancienSelected.forceUpdate();
+
+				this.flushAndUpdateSelected();
+
 				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, false);
-				for(i of this.possiblesMvmt){
-					this.cases[i].forceUpdate();	
-				}
+			//	this.updateList(this.possiblesMvmt);
+
 				if(aMangé){	// on viens de faire une prise
 					this.cases[aMangé].forceUpdate();
 					this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, false);
 					if(!this.possiblesMvmt[0]) { // dernier mvmnt possible
-						this.nextMove();
-					}else{					// le mouvement continu
+						this.cases[coord].forceUpdate();
+						await sleep(0);
+						this.doNextMove();
+					}
+					else{					// le mouvement continu
 						this.selected = coord;
-						this.locked = true;
-						for(i of this.possiblesMvmt){
-							this.cases[i].forceUpdate();
-						}
-					}	
-				}else{
-					this.nextMove();
+						this.inRafle = true;
+						this.updateList(this.possiblesMvmt);
+						dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
+						this.cases[coord].forceUpdate();
+					}
 				}
-				this.cases[coord].forceUpdate();
+				else{
+					this.cases[coord].forceUpdate();
+					dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
+					await sleep(0);
+					this.doNextMove()
+				}
 			}
 			else{			// la case n'est pas jouable, on deselectionne la case si possible
-
+				if(!this.inRafle){
+					this.flushAndUpdateSelected();
+					this.flushAndUpdate(this.possiblesMvmt);	
+				}
 			}
 		}
-
-			
 	}
-	
-
+	doMvmt(M){
+		
+	}
+	flushAndUpdate(L){
+		while(L[0]){
+			this.cases[L.pop()].forceUpdate();
+		}
+	}
+	flushAndUpdateSelected(){
+		let ancienSelected = this.cases[this.selected];
+		this.selected = null;
+		ancienSelected.forceUpdate();
+	}
+	updateList(L){
+		for(i of L){this.cases[i].forceUpdate();}
+	}
 	getPlayerPions(coul){
 		if(coul== 'blanc'){
 			return this.pionsBlancs;
@@ -179,16 +208,6 @@ class Game extends React.Component {
 			</View>
 			);
 	}
-	handle_Case_Constructor(tCase){
-		this.cases[tCase.props.coor] = tCase;
-	}
-	return_Coords(coul){
-		if(coul == 'blanc'){
-			return this.pionsBlancs;
-		}else{
-			return this.pionsNoirs;
-		}
-	}
 	renderDamier(){
 		return( 
 			<View style={styles.damier}>{
@@ -229,3 +248,35 @@ const styles = StyleSheet.create({
 });
 
 export default Game;
+
+
+Array.range = n => Array.from({length: n}, (value, key) => key)
+
+containsArray = (a, b) => a.some(x => arraysEqual(x, b))
+
+function str(x) {return JSON.stringify(x)}
+
+function arraysEqual(a, b) {
+	if (a === b) return true;
+	if (a == null || b == null) return false;
+	if (a.length != b.length) return false;
+	for (var i = 0; i < a.length; ++i) {
+		if (a[i] !== b[i]) return false;
+	}
+	return true;
+}
+
+
+function deleteElementFromArray(L, el){
+	nb = 0;
+	for(i in L){
+		i = L[i];
+		if(arraysEqual(el, i)){
+			L.splice(nb, 1);
+			return true;
+		}
+		nb ++;
+	}
+	return false;
+}
+
