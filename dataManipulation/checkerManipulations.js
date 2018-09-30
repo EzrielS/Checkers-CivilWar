@@ -569,7 +569,17 @@ function negamax(s, depth, alpha=-1000, beta=1000) // s = noeud
   for(let child of childNodes){
     //console.log("depth = ", depth, "\nchild.posW = ", child.posW,  "\nchild.posB = ", child.posB, 
     //  "\nplayer = ", child.player, "\n*****") ;
-    value = Math.max(value, -negamax(child, depth - 1, -beta, -alpha))
+    value = Math.max(value, -negamax(child, depth - 1, -beta, -alpha) +
+    							valeurSituation(s, s.player)*depth/100) ; // UP
+    							/* ^ Cet ajout sert à faire en sorte que l'évalutation
+    							d'une situation soit plus forte lorsqu'elle amène plus TÔT
+    							à une situation avantageuse, ou réciproquement si elle 
+    							amène à une situation désavantageuse dans plus longtemps.
+    							Ceci permet à l'IA de ne pas jouer des coups où elle va se jetter 
+    							devant des pions adverse sous prétexte que l'adversaire 
+    							peut de toute façon bouffer un de ses pion dans 3 coups 
+    							en jouant parfaitement. C'est un jeu plus 'humain' et plus logique
+    							vu que le joueur adverse ne joue pas forcément parfaitement... */
     alpha = Math.max(alpha, value) ;
     if(alpha >= beta)
       break ;
