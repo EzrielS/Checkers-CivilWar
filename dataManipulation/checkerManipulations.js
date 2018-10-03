@@ -570,7 +570,7 @@ function negamax(s, depth, alpha=-1000, beta=1000) // s = noeud
     //console.log("depth = ", depth, "\nchild.posW = ", child.posW,  "\nchild.posB = ", child.posB, 
     //  "\nplayer = ", child.player, "\n*****") ;
     value = Math.max(value, -negamax(child, depth - 1, -beta, -alpha) +
-    							valeurSituation(s, s.player)*depth/100) ; // UP
+    							(valeurSituation(s, s.player)/(depth*5)/100)) ; // UP
     							/* ^ Cet ajout sert à faire en sorte que l'évalutation
     							d'une situation soit plus forte lorsqu'elle amène plus TÔT
     							à une situation avantageuse, ou réciproquement si elle 
