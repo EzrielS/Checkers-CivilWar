@@ -1,6 +1,4 @@
-
 /* **** IA *****
-
 On utilise un algorithme minimax, avec le fameux élagage alpha-beta, qui permet
 de restreindre le temps de calcul en coupant les branches des branches qui se révéleront 
 forcément plus grande (pour les noeuds min) ou plus petites (pour les noeuds max)
@@ -8,12 +6,16 @@ que celles qu'on a pu déjà calculer (c'est la fenêtre alpha-beta). On simplif
 l'algorithme de la même manière qu'on simplifie minimax en negamax, 
 c'est-à-dire en inversant à chaque récursion A et B plutôt que
 de conditionner (si on est sur un noeud min :... sur un noeud max:...))
-
 Un algorithme basé sur minimax aura toujours besoin de deux fonctions décisives : 
 - une fonction enfants() renvoyant toutes les situations de jeu découlant de la situation courante 
 - et une fonction d'évaluation de la valeur d'une situation.
 C'est elles que l'on va commencer par programmer. 
 */
+
+
+
+
+
 
 /* Puisqu'avec la représentation des données qu'on a choisi depuis le départ,
  on a séparé posW et posB, 
@@ -175,6 +177,9 @@ function choisitCoup(s, depth = NORMAL){
   if(depth < 1) // Si on veut choisir un coup au hasard
     res = coups ;
   else {
+    // Si on a plus de trois branches de départ, il faut aller moins profond
+    if(childNodes.len > 3 && depth > 4) 
+      depth-- ;
     for(let child of childNodes){
       // On évalue la valeur de la prochaine situation pour l'adversaire
       if(val < (tmpVal = -negamax(child, depth-1)))
@@ -194,7 +199,6 @@ function choisitCoup(s, depth = NORMAL){
 function negamax(node, depth, α, β, color) is
     if depth = 0 or node is a terminal node then
         return color × the heuristic value of node
-
     childNodes := generateMoves(node)
     childNodes := orderMoves(childNodes)
     value := −∞
@@ -204,8 +208,6 @@ function negamax(node, depth, α, β, color) is
         if α ≥ β then
             break (* cut-off *)
     return value
-
-
         1
       3   4
      4 5 6 3 
