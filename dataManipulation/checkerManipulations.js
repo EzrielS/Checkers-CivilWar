@@ -392,4 +392,3 @@ function listeCasesDames(posDame, posW, posB, player)
 	}
 	return [deplacementsNormaux, sauteEtMange] ;
 }
-
