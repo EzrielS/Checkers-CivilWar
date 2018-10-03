@@ -1,13 +1,13 @@
 import React from 'react';
 import {View, TouchableOpacity, Text,  StyleSheet, Image, Dimensions} from 'react-native';
-import {Button, Icon} from 'native-base';
+import {Button, Icon, Spinner} from 'native-base';
 import {Header} from 'react-native-elements';
 import Case from './Case.js';
 import * as dm from '../dataManipulation/checkerManipulations.js';
-import 'react-native-console-time-polyfill';
+import {BLACK, WHITE, range, arraysEqual, containsArray, str} from '../commonImports.js';
 
-// import * as ia from '../dataManipulation/ia.js';
-
+const INGAME = 0;
+const WON = 1;
 
 function sleep(ms){
     return new Promise(resolve=>{
@@ -22,56 +22,63 @@ var windowWidth = Dimensions.get('window').width;
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {gameState: INGAME}; 
 		this.selected = null;
 		this.cases = {} ;
 		this.pionsBlancs = [];
 		this.pionsNoirs = [];
 		this.damesBlanches = [];
 		this.damesNoires = [];
-		this.pions = ['noir', 'blanc'];
-		this.possiblesCoups = [];	// coup = ensemble de mvmnt qui sont 'en une fois'
+		this.currentPlayer = BLACK;
+		this.otherPlayer = WHITE;
 		this.possiblesMvmt = [];
 		this.inRafle = false;
 		this.locked = false;
-
-		for(let i of Array.range(5)){
+		for(let i of range(5)){
 			i = 2*i;
 			this.pionsNoirs.push([0, i+1]);
-			this.pionsNoirs.push([1, i]);
-			this.pionsNoirs.push([2, i+1]);
-			this.pionsNoirs.push([3, i]);
-
+//			this.pionsNoirs.push([1, i]);
+//			this.pionsNoirs.push([2, i+1]);
+//			this.pionsNoirs.push([3, i]);
 			this.pionsBlancs.push([6, i+1]);
 			this.pionsBlancs.push([7, i]);
 			this.pionsBlancs.push([8, i+1]);
 			this.pionsBlancs.push([9, i]);
 		}
-
-		this.infoGame = {};
-
-
+		this.pionsBougeables = [];
+		
+	}
+	componentDidMount(){
 		this.nextMove();
 	}
 	nextMove(){
-		this.pions = this.pions.reverse();
-		this.pionsBougeables = dm.pionsBougeables(this.piecesBlanches(), this.piecesNoires(), this.pions[0])
-		this.selected = null;
-		this.possiblesMvmt = [];
-		this.inRafle = false;
-		this.locked = false;
+		let player = this.currentPlayer;
+		this.currentPlayer = this.otherPlayer;
+		this.otherPlayer = player;
+
+		let tmp = dm.pionsBougeables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer);
+		this.pionsBougeables = tmp;
+		if(!tmp[0]){
+			this.setState({gameState: WON});
+		}
+		else{
+			this.selected = null;
+			this.possiblesMvmt = [];
+			this.inRafle = false;
+			this.locked = false;
+		}
 	}
 	async doNextMove(){
 		this.nextMove();
-		console.log('Executing doNextMove');
 		if(this.props.type == 'IA'){
 			this.locked = true;
-console.time("ia");
-			let coup = dm.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.pions[0], 2);
-console.timeEnd("ia");
-			this.doCoup(coup);
+			let coup = dm.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, 2);
+
+			await this.doCoup(coup);
+			this.nextMove();
 		}
 		else if(this.props.type == 'Solo'){}
-		this.nextMove();
+		
 	}
 	async pressCase(coord){ 
 		if (this.locked){	// pas a un joueur à jouer
@@ -79,7 +86,7 @@ console.timeEnd("ia");
 		}
 		if(!this.selected){
 			if (containsArray(this.pionsBougeables, coord) ) {	// ce pion est bougeable
-				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, true);
+				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, true);
 				this.selected = coord;
 				this.updateList(this.possiblesMvmt);
 				this.cases[coord].forceUpdate();
@@ -90,32 +97,25 @@ console.timeEnd("ia");
 				
 				this.flushAndUpdate(this.possiblesMvmt);
 
-				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coord]);
+				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, [this.selected, coord]);
 				this.flushAndUpdateSelected();
-				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, false);
+				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, false);
 
 				if(aMangé){	// on viens de faire une prise
 					this.cases[aMangé].forceUpdate();
-					this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.pions[0], coord, false);
-					if(!this.possiblesMvmt[0]) { // dernier mvmnt possible
-						this.cases[coord].forceUpdate();
-						await sleep(0);
-						this.doNextMove();
-					}
-					else{					// le mouvement continu
+					this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, false);
+					if(this.possiblesMvmt[0]) { // le mouvement continu
 						this.selected = coord;
 						this.inRafle = true;
 						this.updateList(this.possiblesMvmt);
-						dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
 						this.cases[coord].forceUpdate();
+						return 0;
 					}
-				}
-				else{
-					this.cases[coord].forceUpdate();
-					dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
-					await sleep(0);
-					this.doNextMove()
-				}
+				}				
+				dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
+				this.cases[coord].forceUpdate();
+				await sleep(0);
+				this.doNextMove()
 			}
 			else{			// la case n'est pas jouable, on deselectionne la case si possible
 				if(!this.inRafle){
@@ -125,21 +125,19 @@ console.timeEnd("ia");
 			}
 		}
 	}
-	doMvmt(M){
-		
-	}
-	doCoup(L){
-		this.selected = coup.shift();
+	async doCoup(L){	// fonction générale, qui sera utile en multi à terme
+		this.selected = L.shift();
 		this.cases[this.selected].forceUpdate();
-		while(coup[0]){
+		while(L[0]){
 			await sleep(400);
-			let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.pions[0], [this.selected, coup[0]]);
+			let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, [this.selected, L[0]]);
 			if(aMangé)
 				this.cases[aMangé].forceUpdate();
 			this.flushAndUpdateSelected();
-			this.selected = coup.shift();
+			this.selected = L.shift();
 			this.cases[this.selected].forceUpdate();
 		}
+		dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
 		this.flushAndUpdateSelected();
 	}
 	flushAndUpdate(L){
@@ -156,32 +154,44 @@ console.timeEnd("ia");
 		for(i of L){this.cases[i].forceUpdate();}
 	}
 	getPlayerPions(coul){
-		if(coul== 'blanc'){
+		if(coul== WHITE){
 			return this.pionsBlancs;
 		}
 		return this.pionsNoirs;
 	}
 	getPlayerDames(coul){
-		if(coul == 'blanc'){
+		if(coul == WHITE){
 			return this.damesBlanches;
 		}
 		return this.damesNoires;
 	}
 	setPlayerPions(coul, L){
-		if (coul == 'blanc'){
+		if (coul == WHITE){
 			this.pionsBlancs = L;
 		}else{
 			this.pionsNoirs = L;
 		}
-
 	}
-	piecesBlanches(){
-		return [this.pionsBlancs, this.damesBlanches];
-	}
-	piecesNoires(){
-		return [this.pionsNoirs, this.damesNoires];
-	}
+	piecesBlanches(){return [this.pionsBlancs, this.damesBlanches];}
+	piecesNoires() {return [this.pionsNoirs, this.damesNoires];}
 	render() {
+		if(this.state.gameState == WON){
+			return(
+				<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', flex: 1}}>
+					<View>
+						<Button 
+							transparent
+							onPress={()=>this.props.setter('Landing')}
+							styles = {{alignSelf: 'flex-start', backgroundColor: 'red'}}>
+								<Icon name="ios-arrow-back" />
+						</Button>
+					</View>
+					<View>
+						<Text style={styles.text}> La partie a été gagné par : {this.currentPlayer == '1' ? 'BLANC' : 'NOIR'} ! </Text>
+					</View>
+				</View>
+			);
+		}
 		return(
 			<View>
 			    <Header
@@ -200,14 +210,21 @@ console.timeEnd("ia");
 				{ this.renderDamier() }
 				
 			</View>
-			);
+		);
+	}
+	getTransform(){
+		if(this.inNetworkGame && this.mPlayer == BLACK){
+			return {transform: [{ rotate: '180deg'}]};
+		}
+		return {};
 	}
 	renderDamier(){
 		return( 
-			<View style={styles.damier}>{
-				Array.range(5).map((x)=>{return(
+			<View 
+				style={[styles.damier,this.getTransform()]}>
+				{range(5).map((x)=>{return(
 					<View style={{flexDirection: 'row', height: Dimensions.get('window').width/5}} key={x}>
-						{Array.range(5).map((y)=>{ return(
+						{range(5).map((y)=>{ return(
 							<View 
 								key={[x, y]} 
 								style={{width: Dimensions.get('window').width/5}}>
@@ -232,45 +249,17 @@ console.timeEnd("ia");
 			</View>
 		);
 	}
+
 }
 
 const styles = StyleSheet.create({
 	damier: {
 		width:  Dimensions.get('window').width,
 		height: Dimensions.get('window').width,
+	},
+	text: {
+		fontSize: 20,
 	}
 });
 
 export default Game;
-
-
-Array.range = n => Array.from({length: n}, (value, key) => key)
-
-containsArray = (a, b) => a.some(x => arraysEqual(x, b))
-
-function str(x) {return JSON.stringify(x)}
-
-function arraysEqual(a, b) {
-	if (a === b) return true;
-	if (a == null || b == null) return false;
-	if (a.length != b.length) return false;
-	for (var i = 0; i < a.length; ++i) {
-		if (a[i] !== b[i]) return false;
-	}
-	return true;
-}
-
-
-function deleteElementFromArray(L, el){
-	nb = 0;
-	for(i in L){
-		i = L[i];
-		if(arraysEqual(el, i)){
-			L.splice(nb, 1);
-			return true;
-		}
-		nb ++;
-	}
-	return false;
-}
-

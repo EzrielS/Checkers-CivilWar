@@ -3,6 +3,9 @@ import {View, TouchableOpacity, Text,  StyleSheet, Image} from 'react-native';
 import {Button, Icon} from 'native-base';
 import {Header} from 'react-native-elements';
 
+import {str, arraysEqual, containsArray} from '../commonImports.js';
+
+/*
 function arraysEqual(a, b) {
 	if (a === b) return true;
 	if (a == null || b == null) return false;
@@ -16,7 +19,7 @@ function arraysEqual(a, b) {
 function str(x) {return JSON.stringify(x)}
 
 containsArray = (a, b) => a.some(x => arraysEqual(x, b))
-
+*/
 
 var imagePionNoir    = require('../img/pionNoir.png');
 var imagePionBlanc   = require('../img/pionBlanc.png');

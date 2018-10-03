@@ -3,12 +3,14 @@ import { StyleSheet, View, Font, Text, ImageBackground, Dimensions} from 'react-
 import { Button } from 'native-base';
 
 
+const imgBg = require('../img/fond.png');
+
 class Landing extends React.Component {
 	render() {
 		return (
 			<ImageBackground
 				style={styles.imgBack}
-				source={require('../img/fond.png')}>
+				source={imgBg}>
 
 			
 				<View style={styles.form}>

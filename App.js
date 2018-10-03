@@ -7,8 +7,8 @@ import Game from './Components/Game.js'
 class App extends React.Component {
 	constructor(props) {
 		super(props);
-//		this.state = {page: 'Landing'};
-		this.state = {page: 'Game', type: 'IA', diff: null};
+		this.state = {page: 'Landing'};
+//		this.state = {page: 'NewGame', type: 'IA', diff: null};
 //this.doNewGame('IA', 0);
 	}
 	componentWillMount() {
@@ -31,8 +31,6 @@ class App extends React.Component {
 			if(this.state.page == 'Game'){
 				return (<Game setter={(a)=>this.setPage(a)} type={this.state.type} diff={this.state.diff} />);
 			}
-
-		;
 		
 	}
 	async loadFonts() {
