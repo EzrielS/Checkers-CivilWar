@@ -1,38 +1,13 @@
+import {BLACK, WHITE, range, arraysEqual, containsArray, str, deleteElementFromArray} from '../commonImports.js';
+
 
 const BOARD_SIZE = 10 ;
-const WHITE = 'blanc' ;
-const BLACK = 'noir' ;
-
-
 const PION = 0 ;
 const DAME = 1 ;
 var attack = 0 ;
 var sizeAttackPion = 0 ;
 
 // Affichage pour tests
-function str(x) {console.log(JSON.stringify(x)) ; return x ;}
-
-function arraysEqual(a, b) {
-	if (a === b) return true;
-	if (a == null || b == null) return false;
-	if (a.length != b.length) return false;
-	for (var i = 0; i < a.length; ++i) {
-		if (a[i] !== b[i]) return false;
-	}
-	return true;
-}
-
-function deleteElementFromArray(L, el){
-	nb = 0;
-	for(let i of L){
-		if(arraysEqual(el, i)){
-			L.splice(nb, 1);
-			return true;
-		}
-		nb ++;
-	}
-	return false;
-}
 
 // Il est important que attack soit une variable globale
 var attack = 0 ;
