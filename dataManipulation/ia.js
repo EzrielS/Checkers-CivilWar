@@ -1,3 +1,7 @@
+
+import {BLACK, WHITE, range, arraysEqual, containsArray, str, deleteElementFromArray, copyBoard} from '../commonImports.js';
+import {listNextPlay, doUpdate, pionsToDames} from './checkerManipulations.js';
+
 /* **** IA *****
 On utilise un algorithme minimax, avec le fameux élagage alpha-beta, qui permet
 de restreindre le temps de calcul en coupant les branches des branches qui se révéleront 

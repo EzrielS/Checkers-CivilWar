@@ -30,3 +30,14 @@ export function deleteElementFromArray(L, el){
 
 export const WHITE = 0 ;
 export const BLACK = 1 ;
+
+// Fonction qui sert à créer la copie d'un jeu afin de ne pas le modifier physiquement
+export function copyBoard(a){
+	let res = [[],[]] ;
+	for (let p in a){ // Pions/Dames
+		for (let c of a[p]){ // Cases 
+			res[p].push(Array.from(c)) ;
+		} 
+	}
+	return res ;
+}

@@ -1,4 +1,4 @@
- import {BLACK, WHITE, range, arraysEqual, containsArray, str, deleteElementFromArray} from '../commonImports.js';
+ import {BLACK, WHITE, range, arraysEqual, containsArray, str, deleteElementFromArray, copyBoard} from '../commonImports.js';
 
 
 const BOARD_SIZE = 10 ;
@@ -109,7 +109,7 @@ bas du plateau
 //et dajouter au tableau résulya
 // resTree = [coupsPions, coupsDames]
 // coupsPions = [posDépart [coup1] [coup2]]
-function listNextPlay(posW, posB, player) {
+export function listNextPlay(posW, posB, player) {
 	var resTree = [] ;
 	attack = 0 ;
 	let myPos = (player == WHITE ? posW : posB) ;
@@ -220,16 +220,7 @@ function lanceAttack(posPion, posW, posB, player, pionsMangés=[])
 	return nexts ;
 }
 
-// Fonction qui sert à créer la copie d'un jeu afin de ne pas le modifier physiquement
-function copyBoard(a){
-	let res = [[],[]] ;
-	for (let p in a){ // Pions/Dames
-		for (let c of a[p]){ // Cases 
-			res[p].push(Array.from(c)) ;
-		} 
-	}
-	return res ;
-}
+
 
 // Retourne tous les coups possibles après une attaque, ainsi que les pions qui seraient
 // mangés dans la rafle, sous la forme :
