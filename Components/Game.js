@@ -3,7 +3,10 @@ import {View, TouchableOpacity, Text,  StyleSheet, Image, Dimensions} from 'reac
 import {Button, Icon, Spinner} from 'native-base';
 import {Header} from 'react-native-elements';
 import Case from './Case.js';
+
 import * as dm from '../dataManipulation/checkerManipulations.js';
+import * as ia from '../dataManipulation/ia.js';
+
 import {BLACK, WHITE, range, arraysEqual, containsArray, str} from '../commonImports.js';
 
 const INGAME = 0;
@@ -37,9 +40,9 @@ class Game extends React.Component {
 		for(let i of range(5)){
 			i = 2*i;
 			this.pionsNoirs.push([0, i+1]);
-//			this.pionsNoirs.push([1, i]);
-//			this.pionsNoirs.push([2, i+1]);
-//			this.pionsNoirs.push([3, i]);
+			this.pionsNoirs.push([1, i]);
+			this.pionsNoirs.push([2, i+1]);
+			this.pionsNoirs.push([3, i]);
 			this.pionsBlancs.push([6, i+1]);
 			this.pionsBlancs.push([7, i]);
 			this.pionsBlancs.push([8, i+1]);
@@ -72,7 +75,7 @@ class Game extends React.Component {
 		this.nextMove();
 		if(this.props.type == 'IA'){
 			this.locked = true;
-			let coup = dm.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, 2);
+			let coup = ia.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, 2);
 
 			await this.doCoup(coup);
 			this.nextMove();
