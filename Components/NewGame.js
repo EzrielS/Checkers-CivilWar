@@ -3,6 +3,8 @@ import { StyleSheet, View, Font, Text, Image, ImageBackground, Dimensions } from
 import {Button, Icon, Picker} from 'native-base';
 import {Header} from 'react-native-elements';
 
+const imgBg = require('../img/fond3.png');
+
 class NewGame extends React.Component {
 	constructor(props) {
 		super(props);
@@ -13,7 +15,7 @@ class NewGame extends React.Component {
 			return(
 				<View style={styles.subform}>
 					<Text style={styles.text}> Difficulté: </Text>
-					<View style={{height: 50, backgroundColor: 'orange'}}>
+					<View style={{height: 50,width: "50%",backgroundColor: 'orange'}}>
 						<Picker
 							mode="dropdown"
 							iosIcon={<Icon name="ios-arrow-down-outline" />}
@@ -61,41 +63,42 @@ class NewGame extends React.Component {
 											</Button>} />
 					</View>
 
-						<View style={styles.form}>
+					<ImageBackground source={imgBg} style={styles.imgBack}>
+							<View style={styles.form}>
 
-							<View style={styles.subform} >
-								<Text style={styles.text}> Versus: </Text>
-								<View style={{height: 50, backgroundColor: 'orange'}}>
-									<Picker
-										mode="dropdown"
-										iosIcon={<Icon name="ios-arrow-down-outline" />}
-										placeholder="Versus"
-										placeholderStyle={{ backgroundColor: "blue" }}
-										placeholderIconColor="#007aff"
-										selectedValue={this.state.versus}
-										onValueChange={(a, i)=>this.setState({versus: a})}
-										style = {{width: 175}}>
-											<Picker.Item label="IA" value='IA' />
-											<Picker.Item label="Solo" value='Solo' />
-											<Picker.Item label="Autre Joueur" value='Reseau' />
-									</Picker>
+								<View style={styles.subform} >
+									<Text style={styles.text}> Versus: </Text>
+									<View style={{height: 50, backgroundColor: 'orange', width: "50%"}}>
+										<Picker
+											mode="dropdown"
+											iosIcon={<Icon name="ios-arrow-down-outline" />}
+											placeholder="Versus"
+											placeholderStyle={{ backgroundColor: "blue" }}
+											placeholderIconColor="#007aff"
+											selectedValue={this.state.versus}
+											onValueChange={(a, i)=>this.setState({versus: a})}
+											style = {{width: 175}}>
+												<Picker.Item label="IA" value='IA' />
+												<Picker.Item label="Solo" value='Solo' />
+												<Picker.Item label="Autre Joueur" value='Reseau' />
+										</Picker>
+									</View>
+								</View>	
+								
+								{this.formVersus(this.state.versus)}
+								
+								<View style={{margin: 15,}} >
+									<Button
+										style= {{width: 50, backgroundColor: "#324C66"}}
+										onPress = {()=>this.props.doNewGame(this.state.versus, this.state.diffSel)} >
+										<Text style={styles.text}> Go ! </Text>
+									</Button>
 								</View>
-							</View>	
-							
-							{this.formVersus(this.state.versus)}
-							
-							<View style={{margin: 15,}} >
-								<Button
-									style= {{width: 50}}
-									onPress = {()=>this.props.doNewGame(this.state.versus, this.state.diffSel)} >
-									<Text style={styles.text}> Go ! </Text>
-								</Button>
+
 							</View>
-
-						</View>
-			
-					<View style= {{height: 75}}/>
-
+				
+						<View style= {{height: 75}}/>
+					</ImageBackground>
 			</View>
 
 		)
@@ -107,9 +110,9 @@ const styles = StyleSheet.create({
 		flexDirection: 'column',
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: 'green',
+		backgroundColor: 'rgba(100, 100, 100, 0.7)',
 		padding: 30,
-		width: '60%',
+		width: '35%',
 	},
 	container: {
 		justifyContent: 'center',
@@ -121,11 +124,17 @@ const styles = StyleSheet.create({
 	subform: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		width: '50%',
+		width: '80%',
 		justifyContent: 'space-between',
 		margin: 15,
-		backgroundColor: 'red',
-	}
+		// backgroundColor: 'brown',
+	},
+	imgBack: {
+		width: Dimensions.get('window').width,
+		height: Dimensions.get('window').height,
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
 });
 
 export default NewGame;
