@@ -8,27 +8,96 @@ const imgBg = require('../img/fond3.png');
 class NewGame extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {diffSel: 1, versus: 'IA'};
+		this.state = {diffSel: 3, versus: 'IA'};
 	}
-	formVersus(vers){
+	title() {
+		return(
+			<View
+				style={{height:'100%', flexDirection: 'column', justifyContent: 'center'}}>
+				<Text style={styles.text}> Nouveau Jeu </Text> 
+			</View>
+
+		);
+	}
+	render() {
+		return(
+
+			<View style={{flex: 1, justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'grey'}}>		
+
+					<View style={{height: 75, width: '100%'}}>
+						<Header
+							statusBarProps={{ barStyle: 'light-content' }}
+							centerComponent={this.title()}
+							outerContainerStyles={{ backgroundColor: '#324C66' }}
+							leftComponent={	<Button 
+												transparent
+												onPress={()=>this.props.setter('Landing')}
+												style = {{alignSelf: 'flex-start', }}
+												>
+													<Icon name="ios-arrow-back" />
+											</Button>} />
+					</View>
+
+
+					<ImageBackground source={imgBg} style={styles.imgBack}>
+						<View style={styles.form}>
+							<View style={styles.subform} >
+								<View /*style={{backgroundColor: 'green'}} */ >
+									<Text style={styles.text}> Versus: </Text>
+								</View>
+								<View style={{height: 50, backgroundColor: 'orange', width: "55%" }}>
+									<Picker
+										mode="dropdown"
+										iosIcon={<Icon name="ios-arrow-down-outline" />}
+										placeholder="Versus"
+										placeholderIconColor="#007aff"
+										selectedValue={this.state.versus}
+										onValueChange={(a, i)=>this.setState({versus: a})}
+										style = {{width: "100%"}}>
+											<Picker.Item label="IA" value='IA' />
+											<Picker.Item label="Solo" value='Solo' />
+											{/*<Picker.Item label="Autre Joueur" value='Reseau' /> pour plus tard */}
+									</Picker>
+								</View>
+							</View>	
+
+							{this.formVersus(this.state.versus)}
+
+							<View style={{margin: 15,}} >
+								<Button
+									style= {{width: 50, backgroundColor: "#324C66"}}
+									onPress = {()=>this.props.doNewGame(this.state.versus, this.state.diffSel)} >
+									<Text style={styles.text}> Go ! </Text>
+								</Button>
+							</View>
+
+						</View>
+				
+						<View style= {{height: 75}} />  {/* L'idée est d'ajouter une View vide, de la hauteur du header afin de s'assurer que le form soit au milieu */}
+
+					</ImageBackground>
+			</View>
+
+		)
+	}
+	formVersus(vers){			// renderise une partie du formulaire afin d'aléger le reste.
 		if (vers == 'IA'){
 			return(
 				<View style={styles.subform}>
-					<Text style={styles.text}> Difficulté: </Text>
-					<View style={{height: 50,width: "50%",backgroundColor: 'orange'}}>
+					<View /*style={{backgroundColor: 'green'}}*/ >
+						<Text style={styles.text}> Difficulté: </Text>
+					</View>
+					<View style={{height: 50,width: "55%",backgroundColor: 'orange'}}>
 						<Picker
 							mode="dropdown"
 							iosIcon={<Icon name="ios-arrow-down-outline" />}
 							placeholder="Difficulté"
-							placeholderStyle={{ backgroundColor: "blue" }}
 							placeholderIconColor="#007aff"
 							selectedValue={this.state.diffSel}
 							onValueChange={(a, i)=>this.setState({diffSel: a})}
-							itemStyle={{height: 30, fontSize: 30,}}
-							itemTextStyle={{ fontSize: 30, color: 'red' }}
-							style = {{width: 175, height: 30}}>
-								<Picker.Item label="Facile" value={2} />
-								<Picker.Item label="Moyen" value={3} />
+							style = {{width: "80%"}}>
+								<Picker.Item label="Facile"    value={2} />
+								<Picker.Item label="Moyen"     value={3} />
 								<Picker.Item label="Difficile" value={4} />
 						</Picker>
 					</View>
@@ -38,70 +107,11 @@ class NewGame extends React.Component {
 		}
 		else{
 			return(
-					<Text style={styles.text}> 
-						Vous allez vous battre contre un humain de votre niveau ! 
-					</Text>
-				);
+				<Text style={styles.text}> 
+					Vous allez vous battre contre un humain de votre niveau ! 
+				</Text>
+			);
 		}
-	}
-	render() {
-		return(
-
-			<View style={{flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>		
-
-					<View style={{height: 75, width: '100%'}}>
-						<Header
-							statusBarProps={{ barStyle: 'light-content' }}
-							centerComponent={{ text: 'Nouveau Jeu', style: { color: '#fff' } }}
-							outerContainerStyles={{ backgroundColor: '#324C66' }}
-							leftComponent={	<Button 
-												transparent
-												onPress={()=>this.props.setter('Landing')}
-												styles = {{alignSelf: 'flex-start', backgroundColor: 'red'}}
-												>
-													<Icon name="ios-arrow-back" />
-											</Button>} />
-					</View>
-
-					<ImageBackground source={imgBg} style={styles.imgBack}>
-							<View style={styles.form}>
-
-								<View style={styles.subform} >
-									<Text style={styles.text}> Versus: </Text>
-									<View style={{height: 50, backgroundColor: 'orange', width: "50%"}}>
-										<Picker
-											mode="dropdown"
-											iosIcon={<Icon name="ios-arrow-down-outline" />}
-											placeholder="Versus"
-											placeholderStyle={{ backgroundColor: "blue" }}
-											placeholderIconColor="#007aff"
-											selectedValue={this.state.versus}
-											onValueChange={(a, i)=>this.setState({versus: a})}
-											style = {{width: 175}}>
-												<Picker.Item label="IA" value='IA' />
-												<Picker.Item label="Solo" value='Solo' />
-												<Picker.Item label="Autre Joueur" value='Reseau' />
-										</Picker>
-									</View>
-								</View>	
-								
-								{this.formVersus(this.state.versus)}
-								
-								<View style={{margin: 15,}} >
-									<Button
-										style= {{width: 50, backgroundColor: "#324C66"}}
-										onPress = {()=>this.props.doNewGame(this.state.versus, this.state.diffSel)} >
-										<Text style={styles.text}> Go ! </Text>
-									</Button>
-								</View>
-
-							</View>
-				
-						<View style= {{height: 75}}/>
-					</ImageBackground>
-			</View>
-
-		)
 	}
 }
 
@@ -111,12 +121,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(100, 100, 100, 0.7)',
-		padding: 30,
-		width: '35%',
+		padding: 10,
+		width: '85%',
+		margin: 0,
 	},
 	container: {
 		justifyContent: 'center',
-
 	},
 	text: {
 		fontSize: 20,
@@ -124,10 +134,9 @@ const styles = StyleSheet.create({
 	subform: {
 		flexDirection: 'row',
 		alignItems: 'center',
-		width: '80%',
+		width: '85%',
 		justifyContent: 'space-between',
-		margin: 15,
-		// backgroundColor: 'brown',
+		margin: 10,
 	},
 	imgBack: {
 		width: Dimensions.get('window').width,

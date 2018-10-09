@@ -18,10 +18,7 @@ C'est elles que l'on va commencer par programmer.
 
 
 
-
-
-
-/* Puisqu'avec la représentation des données qu'on a choisi depuis le départ,
+/* Puisqu'avec la représentation desdonnées qu'on a choisi depuis le départ,
  on a séparé posW et posB, 
 pour représenter une situation mieux vaux créer une
 structure plutôt qu'un simple tableau : ce sera beaucoup plus simple à gérer... Je pense.*/

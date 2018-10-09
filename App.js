@@ -4,16 +4,18 @@ import Landing from './Components/Landing.js';
 import NewGame from './Components/NewGame.js';
 import Game from './Components/Game.js'
 
+
+
+
 class App extends React.Component {
+
 	constructor(props) {
 		super(props);
 		this.state = {page: 'Landing'};
-//		this.state = {page: 'NewGame', type: 'IA', diff: null};
-//this.doNewGame('IA', 0);
 	}
 	componentWillMount() {
-		this.loadFonts();
-		StatusBar.setHidden(true);
+		this.loadFonts();			// on charge les polices
+		StatusBar.setHidden(true);	// on cache la barre superieure 
 	}
 	setPage(page){
 		this.setState({page: page});
@@ -21,6 +23,9 @@ class App extends React.Component {
 	doNewGame(type, diff=0) {
 		this.setState( {page: 'Game', type: type, diff: diff} );
 	}
+	// L'idée est de donner à chaque component une prop 'setter' qui est une fonction qui modifie le state 
+	// 		DU COMPONENT ACTUEL (App.js) afin de changer de page.	De meme pour doNewGame, mais avec plus 
+	// 		de donnés.
 	render() {
 			if(this.state.page == 'Landing'){
 				return (<Landing setter = {(a)=>this.setPage(a)} />);

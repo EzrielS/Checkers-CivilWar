@@ -5,52 +5,40 @@ import {Header} from 'react-native-elements';
 
 import {str, arraysEqual, containsArray} from '../commonImports.js';
 
-/*
-function arraysEqual(a, b) {
-	if (a === b) return true;
-	if (a == null || b == null) return false;
-	if (a.length != b.length) return false;
-	for (var i = 0; i < a.length; ++i) {
-		if (a[i] !== b[i]) return false;
-	}
-	return true;
-}
-
-function str(x) {return JSON.stringify(x)}
-
-containsArray = (a, b) => a.some(x => arraysEqual(x, b))
-*/
-
 var imagePionNoir    = require('../img/pionNoir.png');
 var imagePionBlanc   = require('../img/pionBlanc.png');
 var imageDameNoire   = require('../img/dameNoire.png');
 var imageDameBlanche = require('../img/dameBlanche.png');
 
-
+// Une case, c'est un rectangle qui possède :
+//		1) une couleur (si elle est selectionné...)
+//		2) eventuellement une image d'un pion ou d'une dame.
+//
 class Case extends React.Component {
 	constructor(props) {
 		super(props);
-		this.props.parent.cases[this.props.coor] = this;
+		this.props.parent.cases[this.props.coor] = this; 	// petit trick : on enregistre la nouvelle case dans un dico du parent (Game) 
+				// qui associe coord et objet. Ainsi, on peut facilement mettre à jour une simple case par cases[coord].forceUpdate()
 	}
 	renderPion(coor){ 
 		if (  containsArray(this.props.parent.pionsBlancs, coor) ) {
 			return(
-				<Image source={imagePionBlanc} />
+				<Image source={imagePionBlanc} style={styleImage}  />
 			);
 		}
 		if ( containsArray(this.props.parent.pionsNoirs, coor)  ) {
 			return(
-				<Image source={imagePionNoir} />
+				<Image source={imagePionNoir} style={styleImage} />
 			);
 		}
 		if ( containsArray(this.props.parent.damesBlanches, coor)){
 			return(
-				<Image source={imageDameBlanche} />
+				<Image source={imageDameBlanche} style={styleImage} />
 			);
 		}
 		if ( containsArray(this.props.parent.damesNoires, coor)){
 			return(
-				<Image source={imageDameNoire} />
+				<Image source={imageDameNoire} style={styleImage} />
 			);			
 		}
 	}
@@ -67,7 +55,7 @@ class Case extends React.Component {
 		return('#696969');
 	}
 	render() {
-//console.log('ReRendering : ', this.props.coor);
+
 		return(
 
 			<TouchableOpacity
@@ -84,5 +72,10 @@ class Case extends React.Component {
 		this.forceUpdate();
 	}
 }
+
+const styleImage = {
+	width: '100%',
+	height: '100%'
+};
 
 export default Case;

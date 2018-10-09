@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, TouchableOpacity, Text,  StyleSheet, Image, Dimensions} from 'react-native';
+import {View, Text,  StyleSheet, Image, Dimensions} from 'react-native';
 import {Button, Icon, Spinner} from 'native-base';
 import {Header} from 'react-native-elements';
 import Case from './Case.js';
@@ -20,19 +20,19 @@ function sleep(ms){
 
 var imageH = require('../img/ttt.jpg');
 var windowWidth = Dimensions.get('window').width;
-
+var windowHeight = Dimensions.get('window').height;
 
 class Game extends React.Component {
-	constructor(props) {
+	constructor(props) {		// on remarque qu'ici, les datas ne sont pas stockées dans state qui rerender l'app quand il est modifié 
 		super(props);
-		this.state = {gameState: INGAME}; 
+		this.state = {gameState: INGAME};
 		this.selected = null;
 		this.cases = {} ;
 		this.pionsBlancs = [];
 		this.pionsNoirs = [];
 		this.damesBlanches = [];
 		this.damesNoires = [];
-		this.currentPlayer = BLACK;
+		this.currentPlayer = BLACK;	// on veut executer nextMove au début, qui switch les player
 		this.otherPlayer = WHITE;
 		this.possiblesMvmt = [];
 		this.inRafle = false;
@@ -83,19 +83,19 @@ class Game extends React.Component {
 		else if(this.props.type == 'Solo'){}
 		
 	}
-	async pressCase(coord){ 
+	async pressCase(coord){
 		if (this.locked){	// pas a un joueur à jouer
 			return null;
 		}
-		if(!this.selected){
+		if(!this.selected){	// rien n'est sélectionné, on selectionne la case où on clique
 			if (containsArray(this.pionsBougeables, coord) ) {	// ce pion est bougeable
 				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, true);
 				this.selected = coord;
-				this.updateList(this.possiblesMvmt);
+				this.updateList(this.possiblesMvmt);	// on update les cases ou on peux aller, car elle sont colorées
 				this.cases[coord].forceUpdate();
 			}
 		}
-		else{
+		else{				// on clique sur la prochaine case
 			if( containsArray(this.possiblesMvmt, coord) ){ // on click sur une case ou on peux aller
 				
 				this.flushAndUpdate(this.possiblesMvmt);
@@ -114,13 +114,14 @@ class Game extends React.Component {
 						this.cases[coord].forceUpdate();
 						return 0;
 					}
-				}				
+				}
 				dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
-				this.cases[coord].forceUpdate();
-				await sleep(0);
+				await  this.cases[coord].forceUpdate();
+				// await sleep(0);
+
 				this.doNextMove()
 			}
-			else{			// la case n'est pas jouable, on deselectionne la case si possible
+			else{			// la case n'est pas jouable, on deselectionne la case si possible (si on est pas dans une rafle)
 				if(!this.inRafle){
 					this.flushAndUpdateSelected();
 					this.flushAndUpdate(this.possiblesMvmt);	
@@ -128,7 +129,10 @@ class Game extends React.Component {
 			}
 		}
 	}
-	async doCoup(L){	// fonction générale, qui sera utile en multi à terme
+
+	// Fonction générale, qui sera utile en multi à terme. Prends une liste de coordonnés comme : [[x1, y1], [x2, y2], [x3, y3] ...]
+	// 		et effectue ce coup en mettant un petit sleep entre chaque mouvement.
+	async doCoup(L){	
 		this.selected = L.shift();
 		this.cases[this.selected].forceUpdate();
 		while(L[0]){
@@ -143,16 +147,22 @@ class Game extends React.Component {
 		dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
 		this.flushAndUpdateSelected();
 	}
+
+	// Vide une liste de coord, et update chacun.
 	flushAndUpdate(L){
 		while(L[0]){
 			this.cases[L.pop()].forceUpdate();
 		}
 	}
+
+	// Reassigne selected à null PUIS update son ancienne valeur.
 	flushAndUpdateSelected(){
 		let ancienSelected = this.cases[this.selected];
 		this.selected = null;
 		ancienSelected.forceUpdate();
 	}
+
+	// Fonctions utilitaires autoDocumentées
 	updateList(L){
 		for(i of L){this.cases[i].forceUpdate();}
 	}
@@ -177,6 +187,8 @@ class Game extends React.Component {
 	}
 	piecesBlanches(){return [this.pionsBlancs, this.damesBlanches];}
 	piecesNoires() {return [this.pionsNoirs, this.damesNoires];}
+
+	
 	render() {
 		if(this.state.gameState == WON){
 			return(
@@ -185,7 +197,7 @@ class Game extends React.Component {
 						<Button 
 							transparent
 							onPress={()=>this.props.setter('Landing')}
-							styles = {{alignSelf: 'flex-start', backgroundColor: 'red'}}>
+							style = {{alignSelf: 'flex-start', backgroundColor: 'red'}}>
 								<Icon name="ios-arrow-back" />
 						</Button>
 					</View>
@@ -199,51 +211,46 @@ class Game extends React.Component {
 			<View>
 			    <Header
 	                statusBarProps={{ barStyle: 'light-content' }}
-	                centerComponent={{ text: 'Nouveau Jeu', style: { color: '#fff' } }}
-	                outerContainerStyles={{ backgroundColor: '#324C66' }}
+					centerComponent={this.title()}
+	                outerContainerStyles={{ backgroundColor: '#324C66', height: 75 }}
 	                leftComponent={	<Button 
 										transparent
 										onPress={()=>this.props.setter('Landing')}
-										styles = {{alignSelf: 'flex-start', backgroundColor: 'red'}}>
+										style = {{alignSelf: 'flex-start', }}>
 											<Icon name="ios-arrow-back" />
 									</Button>}/>
+				
 				<Image 
 					source={imageH}
-					style={{width: windowWidth}} />
+					style={{width: windowWidth, height: windowHeight-(75 + windowWidth), resizeMode: 'stretch' }} />
 				{ this.renderDamier() }
 				
 			</View>
 		);
 	}
-	getTransform(){
-		if(this.inNetworkGame && this.mPlayer == BLACK){
-			return {transform: [{ rotate: '180deg'}]};
-		}
-		return {};
-	}
-	renderDamier(){
+/*	renderDamier(){
 		return( 
 			<View 
-				style={[styles.damier,this.getTransform()]}>
+				style={styles.damier}>
 				{range(5).map((x)=>{return(
-					<View style={{flexDirection: 'row', height: Dimensions.get('window').width/5}} key={x}>
+					<View style={{flexDirection: 'row', height: windowWidth/5}} key={x}>
 						{range(5).map((y)=>{ return(
 							<View 
 								key={[x, y]} 
-								style={{width: Dimensions.get('window').width/5}}>
-								<View style={{flexDirection: 'row', height: Dimensions.get('window').width/10}}>
-									<View style= {{flex: 1, backgroundColor: 'white'}} />
+								style={styles.deuxCases}>
+								<View style={{flexDirection: 'row', height: windowWidth/10}}>
+									<View style= {styles.caseBlanche} />
 									<Case
 										coor={[x*2, y*2+1]}
 										parent={this} />
 									
 								</View>
 				
-								<View style={{flexDirection: 'row', height: Dimensions.get('window').width/10}}>
+								<View style={styles.deuxCases}>
 									<Case
 										coor={[x*2+1, y*2]}
 										parent={this} />
-									<View style= {{flex: 1 , backgroundColor: 'white'}} />
+									<View style= {styles.caseBlanche} />
 								</View>
 							</View> );
 						})}
@@ -251,18 +258,66 @@ class Game extends React.Component {
 				);})}
 			</View>
 		);
-	}
+	}*/
+	renderDamier(){
+		return( 
+			<View 
+				style={styles.damier}>
+				{range(5).map((x)=>{return(
+					<View style={{flexDirection: 'row', height: windowWidth/5}} key={x}>
+						{range(5).map((y)=>{ return(
+							<View 
+								key={[x, y]} 
+								style={{width: windowWidth/5}}>
+								<View style={styles.deuxCases}>
+									<View style= {styles.caseBlanche} />
+									<Case
+										coor={[x*2, y*2+1]}
+										parent={this} />
+									
+								</View>
+				
+								<View style={styles.deuxCases}>
+									<Case
+										coor={[x*2+1, y*2]}
+										parent={this} />
+									<View style= {styles.caseBlanche} />
+								</View>
+							</View> );
+						})}
+					</View>
+				);})}
+			</View>
+		);
+	} 
+	title() {
+		return(
+			<View
+				style={{height:'100%', flexDirection: 'column', justifyContent: 'center'}}>
+				<Text style={styles.text}> Aux armes ! </Text> 
+			</View>
 
+		);
+	}
 }
+
 
 const styles = StyleSheet.create({
 	damier: {
-		width:  Dimensions.get('window').width,
-		height: Dimensions.get('window').width,
+		width:  windowWidth,
+		height: windowWidth,
 	},
 	text: {
 		fontSize: 20,
-	}
+	},
+	deuxCases: {
+		flexDirection: 'row',
+		height: windowWidth/10,
+	},
+	caseBlanche: {
+		flex: 1,
+		backgroundColor: 'white',
+	},
 });
 
 export default Game;

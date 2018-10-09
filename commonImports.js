@@ -14,7 +14,7 @@ export function arraysEqual(a, b) {
 	return true;
 }
 
-
+// Supprime une sous liste d'une liste, renvoie true si fait et false si non.
 export function deleteElementFromArray(L, el){
 	nb = 0;
 	for(i in L){

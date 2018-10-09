@@ -1,5 +1,56 @@
 {
-  "expo": {
-    "sdkVersion": "27.0.0"
-  }
+	"expo": {
+		"name": "Checkers Civil War",
+		"icon": "./img/icon.png",
+		"version": "1.0.0",
+		"slug": "CheckersCivilWar",
+		"sdkVersion": "27.0.0",
+		"orientation": "portrait",
+		"android": {
+			"package": "com.getfurther.CheckersCivilWar",
+			"versionCode": 1,
+			"icon": "./img/icon.png",
+			"permissions": [
+				"ACCESS_COARSE_LOCATION",
+				"ACCESS_FINE_LOCATION",
+				"CAMERA",
+				"MANAGE_DOCUMENTS",
+				"READ_CONTACTS",
+				"READ_CALENDAR",
+				"WRITE_CALENDAR",
+				"READ_EXTERNAL_STORAGE",
+				"READ_PHONE_STATE",
+				"RECORD_AUDIO",
+				"USE_FINGERPRINT",
+				"VIBRATE",
+				"WAKE_LOCK",
+				"WRITE_EXTERNAL_STORAGE",
+				"com.anddoes.launcher.permission.UPDATE_COUNT",
+				"com.android.launcher.permission.INSTALL_SHORTCUT",
+				"com.google.android.c2dm.permission.RECEIVE",
+				"com.google.android.gms.permission.ACTIVITY_RECOGNITION",
+				"com.google.android.providers.gsf.permission.READ_GSERVICES",
+				"com.htc.launcher.permission.READ_SETTINGS",
+				"com.htc.launcher.permission.UPDATE_SHORTCUT",
+				"com.majeur.launcher.permission.UPDATE_BADGE",
+				"com.sec.android.provider.badge.permission.READ",
+				"com.sec.android.provider.badge.permission.WRITE",
+				"com.sonyericsson.home.permission.BROADCAST_BADGE"
+			],
+			"splash": {
+				"backgroundColor": "#101010",
+			}
+		},
+		"ios": {
+
+			"bundleIdentifier": "com.getfurther.CheckersCivilWar",
+			"buildNumber": "1.0.0",
+			"icon": "./img/icon.png",
+			"supportsTablet": true,
+			"isTabletOnly": false,
+			"splash": {
+				"backgroundColor": "#101010",
+			},
+		}
+	}
 }
