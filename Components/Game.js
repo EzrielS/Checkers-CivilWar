@@ -54,14 +54,14 @@ class Game extends React.Component {
 	componentDidMount(){
 		this.nextMove();
 	}
-	nextMove(){
+	nextMove(){			// Modifie les data pour le nouveau coup. Eventuellement, 
 		let player = this.currentPlayer;
 		this.currentPlayer = this.otherPlayer;
 		this.otherPlayer = player;
 
 		let tmp = dm.pionsBougeables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer);
 		this.pionsBougeables = tmp;
-		if(!tmp[0]){
+		if(!tmp[0]){	// On ne peut plus jouer _ plus de pion ou bloqué _ la partie est terminé.
 			this.setState({gameState: WON});
 		}
 		else{
@@ -71,63 +71,15 @@ class Game extends React.Component {
 			this.locked = false;
 		}
 	}
-	async doNextMove(){
+	async doNextMove(){	// Encapsule nextMove, afin de gérer le cas où le prochain joueur est une IA. Async, car await est utilisé.
 		this.nextMove();
 		if(this.props.type == 'IA'){
 			this.locked = true;
 			let coup = ia.choisitCoupPos(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, 2);
 
-			await this.doCoup(coup);
+			await this.doCoup(coup);	// On doit attendre que le coup soit fini d'être joué pour continuer.
 			this.nextMove();
-		}
-		else if(this.props.type == 'Solo'){}
-		
-	}
-	async pressCase(coord){
-		if (this.locked){	// pas a un joueur à jouer
-			return null;
-		}
-		if(!this.selected){	// rien n'est sélectionné, on selectionne la case où on clique
-			if (containsArray(this.pionsBougeables, coord) ) {	// ce pion est bougeable
-				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, true);
-				this.selected = coord;
-				this.updateList(this.possiblesMvmt);	// on update les cases ou on peux aller, car elle sont colorées
-				this.cases[coord].forceUpdate();
-			}
-		}
-		else{				// on clique sur la prochaine case
-			if( containsArray(this.possiblesMvmt, coord) ){ // on click sur une case ou on peux aller
-				
-				this.flushAndUpdate(this.possiblesMvmt);
-
-				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, [this.selected, coord]);
-				this.flushAndUpdateSelected();
-				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, false);
-
-				if(aMangé){	// on viens de faire une prise
-					this.cases[aMangé].forceUpdate();
-					this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, false);
-					if(this.possiblesMvmt[0]) { // le mouvement continu
-						this.selected = coord;
-						this.inRafle = true;
-						this.updateList(this.possiblesMvmt);
-						this.cases[coord].forceUpdate();
-						return 0;
-					}
-				}
-				dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
-				await  this.cases[coord].forceUpdate();
-				// await sleep(0);
-
-				this.doNextMove()
-			}
-			else{			// la case n'est pas jouable, on deselectionne la case si possible (si on est pas dans une rafle)
-				if(!this.inRafle){
-					this.flushAndUpdateSelected();
-					this.flushAndUpdate(this.possiblesMvmt);	
-				}
-			}
-		}
+		}		
 	}
 
 	// Fonction générale, qui sera utile en multi à terme. Prends une liste de coordonnés comme : [[x1, y1], [x2, y2], [x3, y3] ...]
@@ -166,18 +118,8 @@ class Game extends React.Component {
 	updateList(L){
 		for(i of L){this.cases[i].forceUpdate();}
 	}
-	getPlayerPions(coul){
-		if(coul== WHITE){
-			return this.pionsBlancs;
-		}
-		return this.pionsNoirs;
-	}
-	getPlayerDames(coul){
-		if(coul == WHITE){
-			return this.damesBlanches;
-		}
-		return this.damesNoires;
-	}
+	getPlayerPions(coul){return coul== WHITE ? this.pionsBlancs : this.pionsNoirs;}
+	getPlayerDames(coul){return coul == WHITE ? this.damesBlanches : this.damesNoires;}
 	setPlayerPions(coul, L){
 		if (coul == WHITE){
 			this.pionsBlancs = L;
@@ -188,7 +130,51 @@ class Game extends React.Component {
 	piecesBlanches(){return [this.pionsBlancs, this.damesBlanches];}
 	piecesNoires() {return [this.pionsNoirs, this.damesNoires];}
 
-	
+	async pressCase(coord){
+		if (this.locked){	// pas a un joueur à jouer
+			return null;
+		}
+		if(!this.selected){	// rien n'est sélectionné, on selectionne la case où on clique
+			if (containsArray(this.pionsBougeables, coord) ) {	// ce pion est bougeable
+				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, true);
+				this.selected = coord;
+				this.updateList(this.possiblesMvmt);	// on update les cases ou on peux aller, car elle sont colorées
+				this.cases[coord].forceUpdate();
+			}
+		}
+		else{				// on clique sur la prochaine case
+			if( containsArray(this.possiblesMvmt, coord) ){ // on click sur une case ou on peux aller
+				
+				this.flushAndUpdate(this.possiblesMvmt);
+
+				let aMangé = dm.doUpdate(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, [this.selected, coord]);
+				this.flushAndUpdateSelected();
+				this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, false);
+
+				if(aMangé){	// on viens de faire une prise
+					this.cases[aMangé].forceUpdate();
+					this.possiblesMvmt = dm.casesPosables(this.piecesBlanches(), this.piecesNoires(), this.currentPlayer, coord, false);
+					if(this.possiblesMvmt[0]) { // le mouvement continu
+						this.selected = coord;
+						this.inRafle = true;
+						this.updateList(this.possiblesMvmt);
+						this.cases[coord].forceUpdate();
+						return 0;
+					}
+				}
+				dm.pionsToDames(this.piecesBlanches(), this.piecesNoires());
+				await this.cases[coord].forceUpdate();
+				this.doNextMove()
+			}
+			else{			// la case n'est pas jouable, on deselectionne la case si possible (si on est pas dans une rafle)
+				if(!this.inRafle){
+					this.flushAndUpdateSelected();
+					this.flushAndUpdate(this.possiblesMvmt);	
+				}
+			}
+		}
+	}
+
 	render() {
 		if(this.state.gameState == WON){
 			return(
@@ -228,37 +214,6 @@ class Game extends React.Component {
 			</View>
 		);
 	}
-/*	renderDamier(){
-		return( 
-			<View 
-				style={styles.damier}>
-				{range(5).map((x)=>{return(
-					<View style={{flexDirection: 'row', height: windowWidth/5}} key={x}>
-						{range(5).map((y)=>{ return(
-							<View 
-								key={[x, y]} 
-								style={styles.deuxCases}>
-								<View style={{flexDirection: 'row', height: windowWidth/10}}>
-									<View style= {styles.caseBlanche} />
-									<Case
-										coor={[x*2, y*2+1]}
-										parent={this} />
-									
-								</View>
-				
-								<View style={styles.deuxCases}>
-									<Case
-										coor={[x*2+1, y*2]}
-										parent={this} />
-									<View style= {styles.caseBlanche} />
-								</View>
-							</View> );
-						})}
-					</View>
-				);})}
-			</View>
-		);
-	}*/
 	renderDamier(){
 		return( 
 			<View 

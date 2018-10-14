@@ -36,7 +36,6 @@ class App extends React.Component {
 			if(this.state.page == 'Game'){
 				return (<Game setter={(a)=>this.setPage(a)} type={this.state.type} diff={this.state.diff} />);
 			}
-		
 	}
 	async loadFonts() {
 		await Expo.Font.loadAsync({

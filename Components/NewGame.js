@@ -42,7 +42,7 @@ class NewGame extends React.Component {
 					<ImageBackground source={imgBg} style={styles.imgBack}>
 						<View style={styles.form}>
 							<View style={styles.subform} >
-								<View /*style={{backgroundColor: 'green'}} */ >
+								<View >
 									<Text style={styles.text}> Versus: </Text>
 								</View>
 								<View style={{height: 50, backgroundColor: 'orange', width: "55%" }}>
@@ -56,7 +56,6 @@ class NewGame extends React.Component {
 										style = {{width: "100%"}}>
 											<Picker.Item label="IA" value='IA' />
 											<Picker.Item label="Solo" value='Solo' />
-											{/*<Picker.Item label="Autre Joueur" value='Reseau' /> pour plus tard */}
 									</Picker>
 								</View>
 							</View>	
@@ -73,7 +72,7 @@ class NewGame extends React.Component {
 
 						</View>
 				
-						<View style= {{height: 75}} />  {/* L'idée est d'ajouter une View vide, de la hauteur du header afin de s'assurer que le form soit au milieu */}
+						<View style= {{height: 75}} />
 
 					</ImageBackground>
 			</View>
@@ -84,7 +83,7 @@ class NewGame extends React.Component {
 		if (vers == 'IA'){
 			return(
 				<View style={styles.subform}>
-					<View /*style={{backgroundColor: 'green'}}*/ >
+					<View >
 						<Text style={styles.text}> Difficulté: </Text>
 					</View>
 					<View style={{height: 50,width: "55%",backgroundColor: 'orange'}}>
@@ -95,7 +94,7 @@ class NewGame extends React.Component {
 							placeholderIconColor="#007aff"
 							selectedValue={this.state.diffSel}
 							onValueChange={(a, i)=>this.setState({diffSel: a})}
-							style = {{width: "80%"}}>
+							style = {{width: "100%"}}>
 								<Picker.Item label="Facile"    value={2} />
 								<Picker.Item label="Moyen"     value={3} />
 								<Picker.Item label="Difficile" value={4} />
@@ -108,7 +107,7 @@ class NewGame extends React.Component {
 		else{
 			return(
 				<Text style={styles.text}> 
-					Vous allez vous battre contre un humain de votre niveau ! 
+					Battez vous avec un ami sur le même téléphone.
 				</Text>
 			);
 		}

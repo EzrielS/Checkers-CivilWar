@@ -42,7 +42,6 @@
 			}
 		},
 		"ios": {
-
 			"bundleIdentifier": "com.getfurther.CheckersCivilWar",
 			"buildNumber": "1.0.0",
 			"icon": "./img/icon.png",

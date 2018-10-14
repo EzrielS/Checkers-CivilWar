@@ -21,14 +21,6 @@ class Landing extends React.Component {
 						</Text>
 					</Button>
 
-{/*			Pour l'instant pas implémenté
-					<Button style={styles.button}>
-						<Text style={styles.buttonText}>
-							Scores
-						</Text>
-					</Button>
-*/}
-
 				</View>
 			</ImageBackground>
 		);
